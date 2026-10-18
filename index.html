@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Priya Weds Vipin | Wedding Memories</title>
+  
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -55,6 +59,35 @@
       padding: 14px 24px;
       border-radius: 30px;
       margin-top: 16px;
+      display: inline-block;
+    }
+
+    /* Gallery Grid Styling */
+    section#memories {
+      margin-top: 40px;
+      width: 100%;
+      max-width: 1000px;
+      padding: 0 16px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .gallery-grid img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-grid img:hover {
+      transform: scale(1.03);
     }
 
     footer {
@@ -67,7 +100,7 @@
   <header>OUR WEDDING MEMORIES</header>
 
   <main>
-    <div class="heart">♥️</div>
+    <div class="heart">♥</div>
     <p>A beautiful journey of love</p>
     <h1>Priya Weds Vipin</h1>
     <p>
@@ -80,10 +113,61 @@
     </a>
 
     <section id="memories">
-      <p>Our special memories are coming soon...</p>
+      <h2>Wedding Gallery</h2>
+      <p id="loading-text">Loading memories...</p>
+      <div class="gallery-grid" id="galleryContainer"></div>
     </section>
   </main>
 
-  <footer>Made with love ♥️ Priya &amp; Vipin</footer>
+  <footer>Made with love ♥ Priya &amp; Vipin</footer>
+
+  <script>
+    // 1. Apna Supabase URL aur Anon Key Yahan Dalein:
+    const SUPABASE_URL = 'https://yhpucghwvqepkmjyczye.supabase.co'; // Aapki project URL (Dashboard me Settings -> API se milegi)
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Dashboard me Settings -> API se Project API key (anon/public)
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function fetchWeddingPhotos() {
+      const galleryContainer = document.getElementById('galleryContainer');
+      const loadingText = document.getElementById('loading-text');
+
+      // 'Wedding-Photos' bucket se saari files ki list le rahe hain
+      const { data, error } = await supabaseClient
+        .storage
+        .from('Wedding-Photos')
+        .list('', { limit: 100, sortBy: { column: 'name', order: 'asc' } });
+
+      if (error) {
+        console.error('Error fetching images:', error);
+        loadingText.innerText = 'Photos load karne me problem aayi.';
+        return;
+      }
+
+      loadingText.style.display = 'none';
+
+      // Har photo ki Public URL nikal kar screen par add kar rahe hain
+      data.forEach(file => {
+        // Sub-folders ya hidden files ko skip karne ke liye
+        if (file.name.startsWith('.')) return;
+
+        const { data: publicUrlData } = supabaseClient
+          .storage
+          .from('Wedding-Photos')
+          .getPublicUrl(file.name);
+
+        const img = document.createElement('img');
+        img.src = publicUrlData.publicUrl;
+        img.alt = 'Wedding Photo';
+
+        galleryContainer.appendChild(img);
+      });
+    }
+
+    // Page load hote hi photos fetch hongi
+    fetchWeddingPhotos();
+    const SUPABASE_URL = 'https://yhpucghwvqepkmjyczye.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocHVjZ2h3dnFlcGttanljenllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjU1MDAsImV4cCI6MjEwNzg0MTUwMH0.Z3NGuzXqmORel3EP9Ad1IroNBGuPIZZs86xw8FP2hqo';
+  </script>
 </body>
 </html>
