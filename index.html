@@ -122,52 +122,45 @@
   <footer>Made with love ♥ Priya &amp; Vipin</footer>
 
   <script>
-    // 1. Apna Supabase URL aur Anon Key Yahan Dalein:
-    const SUPABASE_URL = 'https://yhpucghwvqepkmjyczye.supabase.co'; // Aapki project URL (Dashboard me Settings -> API se milegi)
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Dashboard me Settings -> API se Project API key (anon/public)
+  const SUPABASE_URL = 'https://yhpucghwvqepkmjyczye.supabase.co';
+  const SUPABASE_ANON_KEY = 'Yahan_Apni_Asli_Anon_Key_Dalein';
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function fetchWeddingPhotos() {
-      const galleryContainer = document.getElementById('galleryContainer');
-      const loadingText = document.getElementById('loading-text');
+  async function fetchWeddingPhotos() {
+    const galleryContainer = document.getElementById('galleryContainer');
+    const loadingText = document.getElementById('loading-text');
 
-      // 'Wedding-Photos' bucket se saari files ki list le rahe hain
-      const { data, error } = await supabaseClient
-        .storage
-        .from('Wedding-Photos')
-        .list('', { limit: 100, sortBy: { column: 'name', order: 'asc' } });
+    const { data, error } = await supabaseClient
+      .storage
+      .from('Wedding-Photos')
+      .list('', { limit: 100, sortBy: { column: 'name', order: 'asc' } });
 
-      if (error) {
-        console.error('Error fetching images:', error);
-        loadingText.innerText = 'Photos load karne me problem aayi.';
-        return;
-      }
-
-      loadingText.style.display = 'none';
-
-      // Har photo ki Public URL nikal kar screen par add kar rahe hain
-      data.forEach(file => {
-        // Sub-folders ya hidden files ko skip karne ke liye
-        if (file.name.startsWith('.')) return;
-
-        const { data: publicUrlData } = supabaseClient
-          .storage
-          .from('Wedding-Photos')
-          .getPublicUrl(file.name);
-
-        const img = document.createElement('img');
-        img.src = publicUrlData.publicUrl;
-        img.alt = 'Wedding Photo';
-
-        galleryContainer.appendChild(img);
-      });
+    if (error) {
+      console.error('Error fetching images:', error);
+      loadingText.innerText = 'Photos load karne me problem aayi.';
+      return;
     }
 
-    // Page load hote hi photos fetch hongi
-    fetchWeddingPhotos();
-    const SUPABASE_URL = 'https://yhpucghwvqepkmjyczye.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocHVjZ2h3dnFlcGttanljenllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjU1MDAsImV4cCI6MjEwNzg0MTUwMH0.Z3NGuzXqmORel3EP9Ad1IroNBGuPIZZs86xw8FP2hqo';
-  </script>
+    loadingText.style.display = 'none';
+
+    data.forEach(file => {
+      if (file.name.startsWith('.')) return;
+
+      const { data: publicUrlData } = supabaseClient
+        .storage
+        .from('Wedding-Photos')
+        .getPublicUrl(file.name);
+
+      const img = document.createElement('img');
+      img.src = publicUrlData.publicUrl;
+      img.alt = 'Wedding Photo';
+
+      galleryContainer.appendChild(img);
+    });
+  }
+
+  fetchWeddingPhotos();
+</script>
 </body>
 </html>
