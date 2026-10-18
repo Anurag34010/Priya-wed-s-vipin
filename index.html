@@ -36,6 +36,46 @@
       align-items: center;
       padding: 24px;
     }
+    /* Photo Par Click Karne Par Bada Dikhane Ke Liye Styles */
+.gallery-grid img {
+  cursor: pointer; /* Cursor hand icon ban jayega */
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  max-width: 90%;
+  max-height: 85vh;
+  border-radius: 8px;
+  box-shadow: 0 5px 25px rgba(255, 255, 255, 0.2);
+  animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  color: white;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
     .heart {
       color: #b64060;
@@ -100,6 +140,11 @@
   <header>OUR WEDDING MEMORIES</header>
 
   <main>
+    <!-- Fullscreen Photo Modal -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <span class="close-btn">&times;</span>
+  <img class="modal-content" id="fullImage">
+</div>
     <div class="heart">♥</div>
     <p>A beautiful journey of love</p>
     <h1>Priya Weds Vipin</h1>
@@ -122,6 +167,37 @@
   <footer>Made with love ♥ Priya &amp; Vipin</footer>
 
   <script>
+    // Image par click karne par bada dikhane ka function
+function openModal(imageSrc) {
+  const modal = document.getElementById('imageModal');
+  const fullImg = document.getElementById('fullImage');
+  modal.style.display = 'flex';
+  fullImg.src = imageSrc;
+}
+
+// Modal ko band karne ka function
+function closeModal() {
+  document.getElementById('imageModal').style.display = 'none';
+}
+
+// Apni fetchWeddingPhotos function ke andar loop me ye line update/add karein:
+data.forEach(file => {
+  if (file.name.startsWith('.')) return;
+
+  const { data: publicUrlData } = supabaseClient
+    .storage
+    .from('Wedding-Photos')
+    .getPublicUrl(file.name);
+
+  const img = document.createElement('img');
+  img.src = publicUrlData.publicUrl;
+  img.alt = 'Wedding Photo';
+  
+  // Photo par click karne par badi photo khulne ka function
+  img.onclick = () => openModal(publicUrlData.publicUrl);
+
+  galleryContainer.appendChild(img);
+});
   const SUPABASE_URL = 'https://yhpucghwvqepkmjyczye.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocHVjZ2h3dnFlcGttanljenllIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MjI2NTUwMCwiZXhwIjoyMTA3ODQxNTAwfQ.ceDwdc0ldCSuxZ5orxAi84QOHGfuLCuOvtYzaSMCNpc';
 
